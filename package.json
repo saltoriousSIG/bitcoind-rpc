@@ -49,5 +49,8 @@
   "bugs": {
     "url": "https://github.com/bitpay/bitcoind-rpc/issues"
   },
-  "homepage": "https://github.com/bitpay/bitcoind-rpc"
+  "homepage": "https://github.com/bitpay/bitcoind-rpc",
+  "dependencies": {
+    "dotenv": "^16.0.0"
+  }
 }
