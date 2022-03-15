@@ -61,25 +61,37 @@ http.createServer((request, response) => {
 
                 if (command in lowerCaseMethods) {
 
-                    rpc[command](postData.params, function (err, data) {
-                        if (err) {
-                            return err;
-                        }
-                        response.write(JSON.stringify(data));
-                        response.end();
-                        response.writeHead(200, "OK", { 'Content-Type': 'application/json' });
+                    if(postData.params.length > 0){
 
-                    });
+                        rpc[command](postData.params, function (err, data) {
+                            if (err) {
+                                response.write(JSON.stringify({ "error": err }));
+                            } else {
+                                response.write(JSON.stringify(data));
+                            }
+                            response.end();
+                            response.writeHead(200, "OK", { 'Content-Type': 'application/json' });
+
+                        });
+                    } else {
+                        rpc[command](function (err, data) {
+                            if (err) {
+                                response.write(JSON.stringify({ "error": err }));
+                            } else {
+                                response.write(JSON.stringify(data));
+                            }
+                            response.end();
+                            response.writeHead(200, "OK", { 'Content-Type': 'application/json' });
+
+                        });
+                    }
                 } else {
                     response.write(JSON.stringify({ "error": "method not found" }));
                     response.end();
                     response.writeHead(200, "OK", { 'Content-Type': 'application/json' });
 
                 }
-
-
             }
-
         });
     } else {
         response.writeHead(200, "OK", { 'Content-Type': 'application/json' });
