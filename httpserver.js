@@ -63,7 +63,7 @@ http.createServer((request, response) => {
 
                     if(postData.params.length > 0){
 
-                        rpc[command](postData.params[0], function (err, data) {
+                        rpc[command](...postData.params, function (err, data) {
                             if (err) {
                                 response.write(JSON.stringify({ "error": err }));
                             } else {
