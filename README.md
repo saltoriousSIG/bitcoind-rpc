@@ -24,10 +24,10 @@ var run = function() {
 
   var config = {
     protocol: 'http',
-    user: 'user',
+    user: 'verusdesktop',
     pass: 'pass',
     host: '127.0.0.1',
-    port: '18332',
+    port: '20646',
   };
 
   // config can also be an url, e.g.:
@@ -73,6 +73,20 @@ var run = function() {
 };
 ```
 
+## Includes node server
+
+To run the node server run
+
+```bash
+node httpserver.js
+```
+create a .env file with the 
+
+RPCPORT=12312
+RPCPASSWORD=password
+RPCUSER=user
+RPCIP=127.0.0.1
+NODEPORT=8000
 ## License
 
 **Code released under [the MIT license](https://github.com/bitpay/bitcore/blob/master/LICENSE).**
