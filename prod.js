@@ -67,56 +67,53 @@ http
                 let types = typeString.split(" ");
 
                 let flagged = false;
+                let flagData = ''
 
                 for ([idx, type] of types.entries()) {
                   switch (type) {
                     case "obj":
                       if (postData.params[idx][0] !== "{") {
-                        response.write(
-                          JSON.stringify({ error: "invalid obj type" })
-                        );
+                        flagData = 'invalid obj type'
                         flagged = true;
                       }
                       break;
                     case "int":
                       if (parseInt(postData.params[idx]).isNaN()) {
-                        response.write(
-                          JSON.stringify({ error: "invalid int type" })
-                        );
+                        flagData ='invalid int type'
                         flagged = true;
                       }
                       break;
                     case "float":
                       if (parseFloat(postData.params[idx]).isNaN()) {
-                        response.write(
-                          JSON.stringify({ error: "invalid float type" })
-                        );
+                        flagData = 'invalid float type'
                         flagged = true;
                       }
                       break;
                     case "bool":
                       if (typeof postData.params[idx] !== "boolean") {
-                        response.write(
-                          JSON.stringify({ error: "invalid bool type" })
-                        );
+                        flagData = 'invalid bool type'
                         flagged = true;
                       }
                       break;
                     case "str":
                       if (typeof postData.params[idx] !== "string") {
-                        response.write(
-                          JSON.stringify({ error: "invalid str type" })
-                        );
+                        flagData = 'invalid str type'
                         flagged = true;
                       }
                       break;
                   }
                 }
-                response.end();
-                response.writeHead(200, "OK", {
-                  "Content-Type": "application/json",
-                });
-                if (flagged) return;
+
+                if (flagged) { 
+                  response.write(
+                    JSON.stringify({ error: flagData })
+                  );
+                  response.end();
+                  response.writeHead(200, "OK", {
+                    "Content-Type": "application/json",
+                  });
+                  return;
+                }
 
                 rpc[command](...postData.params, function (err, data) {
                   if (err) {
