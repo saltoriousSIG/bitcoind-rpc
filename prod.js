@@ -12,6 +12,7 @@ var config = {
 
 var rpc = new RpcClient(config);
 var lowerCaseMethods = [];
+var lowerCaseMap = {};
 
 function setupLowerCase() {
   var methods = RpcClient.callspec;
@@ -22,6 +23,7 @@ function setupLowerCase() {
   while (n--) {
     key = keys[n];
     lowerCaseMethods[key.toLowerCase()] = methods[key];
+    lowerCaseMap[key.toLowerCase()] = key;
   }
 }
 
@@ -57,14 +59,72 @@ http
           if (request.post) {
             let postData = JSON.parse(request.post);
             let command = postData.method;
+
             if (command in lowerCaseMethods) {
               if (postData.params.length > 0) {
+                let methods = RpcClient.callspec;
+                let typeString = methods[lowerCaseMap[command] || command];
+                let types = typeString.split(" ");
+
+                let flagged = false;
+
+                for ([idx, type] of types.entries()) {
+                  switch (type) {
+                    case "obj":
+                      if (postData.params[idx][0] !== "{") {
+                        response.write(
+                          JSON.stringify({ error: "invalid obj type" })
+                        );
+                        flagged = true;
+                      }
+                      break;
+                    case "int":
+                      if (parseInt(postData.params[idx]).isNaN()) {
+                        response.write(
+                          JSON.stringify({ error: "invalid int type" })
+                        );
+                        flagged = true;
+                      }
+                      break;
+                    case "float":
+                      if (parseFloat(postData.params[idx]).isNaN()) {
+                        response.write(
+                          JSON.stringify({ error: "invalid float type" })
+                        );
+                        flagged = true;
+                      }
+                      break;
+                    case "bool":
+                      if (typeof postData.params[idx] !== "boolean") {
+                        response.write(
+                          JSON.stringify({ error: "invalid bool type" })
+                        );
+                        flagged = true;
+                      }
+                      break;
+                    case "str":
+                      if (typeof postData.params[idx] !== "string") {
+                        response.write(
+                          JSON.stringify({ error: "invalid str type" })
+                        );
+                        flagged = true;
+                      }
+                      break;
+                  }
+                }
+                response.end();
+                response.writeHead(200, "OK", {
+                  "Content-Type": "application/json",
+                });
+                if (flagged) return;
+
                 rpc[command](...postData.params, function (err, data) {
                   if (err) {
                     response.write(JSON.stringify({ error: err }));
                   } else {
                     response.write(JSON.stringify(data));
                   }
+
                   response.end();
                   response.writeHead(200, "OK", {
                     "Content-Type": "application/json",
@@ -97,7 +157,7 @@ http
         response.end();
       }
     } catch (err) {
-        console.log(err)
+      console.log(err.message);
     }
   })
   .listen(process.env.NODEPORT || 8000);
