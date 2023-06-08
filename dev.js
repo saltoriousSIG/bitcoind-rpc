@@ -4,8 +4,8 @@ require("dotenv").config();
 
 var config = {
   protocol: "http",
-  user: process.env.RPCUSER || "verusdesktop",
-  pass: process.env.RPCPASSWORD || "",
+  user: process.env.RPCUSER || "rootuser",
+  pass: process.env.RPCPASSWORD || "vrsc_id_mktplace",
   host: process.env.RPCIP || "127.0.0.1",
   port: process.env.RPCPORT || "12345",
 };
@@ -78,13 +78,13 @@ http
                       }
                       break;
                     case "int":
-                      if (parseInt(postData.params[idx]).isNaN()) {
+                      if (isNaN(parseInt(postData.params[idx]))) {
                         flagData ='invalid int type'
                         flagged = true;
                       }
                       break;
                     case "float":
-                      if (parseFloat(postData.params[idx]).isNaN()) {
+                      if (isNaN(parseFloat(postData.params[idx]))) {
                         flagData = 'invalid float type'
                         flagged = true;
                       }

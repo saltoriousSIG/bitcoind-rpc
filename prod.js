@@ -4,10 +4,10 @@ require("dotenv").config();
 
 var config = {
   protocol: "http",
-  user: process.env.RPCUSER || "verusdesktop",
-  pass: process.env.RPCPASSWORD || "",
+  user: process.env.RPCUSER || "rootuser",
+  pass: process.env.RPCPASSWORD || "vrsc_id_mktplace",
   host: process.env.RPCIP || "127.0.0.1",
-  port: process.env.RPCPORT || "12345",
+  port: process.env.RPCPORT || "27486",
 };
 
 var rpc = new RpcClient(config);
@@ -57,8 +57,10 @@ http
       if (request.method == "POST") {
         processPost(request, response, function () {
           if (request.post) {
+	    console.log(request.post);
             let postData = JSON.parse(request.post);
             let command = postData.method;
+	    console.log(`command: ${command}`)
 
             if (command in lowerCaseMethods) {
               if (postData.params.length > 0) {
@@ -78,13 +80,13 @@ http
                       }
                       break;
                     case "int":
-                      if (parseInt(postData.params[idx]).isNaN()) {
+                      if (isNaN(parseInt(postData.params[idx]))) {
                         flagData ='invalid int type'
                         flagged = true;
                       }
                       break;
                     case "float":
-                      if (parseFloat(postData.params[idx]).isNaN()) {
+                      if (isNaN(parseFloat(postData.params[idx]))) {
                         flagData = 'invalid float type'
                         flagged = true;
                       }
@@ -116,9 +118,12 @@ http
                 }
 
                 rpc[command](...postData.params, function (err, data) {
+			
                   if (err) {
+		    console.log(err);
                     response.write(JSON.stringify({ error: err }));
                   } else {
+		    console.log(data);
                     response.write(JSON.stringify(data));
                   }
 
@@ -130,8 +135,10 @@ http
               } else {
                 rpc[command](function (err, data) {
                   if (err) {
+	            console.log(err)
                     response.write(JSON.stringify({ error: err }));
                   } else {
+		    console.log(data);
                     response.write(JSON.stringify(data));
                   }
                   response.end();
@@ -157,6 +164,8 @@ http
       console.log(err.message);
     }
   })
-  .listen(process.env.NODEPORT || 8000);
+  .listen(process.env.NODEPORT || 8000,( ) => {
+     console.log(`server is running on port ${process.env.port || 8000}`);
+  });
 
 setupLowerCase();
