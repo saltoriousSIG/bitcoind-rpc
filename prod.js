@@ -13,6 +13,7 @@ var config = {
 var rpc = new RpcClient(config);
 var lowerCaseMethods = [];
 var lowerCaseMap = {};
+var pingCount = 0;
 
 function setupLowerCase() {
   var methods = RpcClient.callspec;
@@ -57,7 +58,6 @@ http
       if (request.method == "POST") {
         processPost(request, response, function () {
           if (request.post) {
-	    console.log(request.post);
             let postData = JSON.parse(request.post);
             let command = postData.method;
 	    console.log(`command: ${command}`)
@@ -71,41 +71,45 @@ http
                 let flagged = false;
                 let flagData = ''
 
+		      
                 for ([idx, type] of types.entries()) {
-                  switch (type) {
-                    case "obj":
-                      if (postData.params[idx][0] !== "{") {
-                        flagData = 'invalid obj type'
-                        flagged = true;
-                      }
-                      break;
-                    case "int":
-                      if (isNaN(parseInt(postData.params[idx]))) {
-                        flagData ='invalid int type'
-                        flagged = true;
-                      }
-                      break;
-                    case "float":
-                      if (isNaN(parseFloat(postData.params[idx]))) {
-                        flagData = 'invalid float type'
-                        flagged = true;
-                      }
-                      break;
-                    case "bool":
-                      if (typeof postData.params[idx] !== "boolean") {
-                        flagData = 'invalid bool type'
-                        flagged = true;
-                      }
-                      break;
-                    case "str":
-                      if (typeof postData.params[idx] !== "string") {
-                        flagData = 'invalid str type'
-                        flagged = true;
-                      }
-                      break;
-                  }
+		  if (postData.params[idx] !== null) { 
+                    switch (type) {
+                      case "obj":
+                        if (postData.params[idx][0] !== "{") {
+                          flagData = 'invalid obj type'
+                          flagged = true;
+                        }
+                        break;
+                      case "int":
+                        if (isNaN(parseInt(postData.params[idx]))) {
+                          flagData ='invalid int type'
+                          flagged = true;
+                        }
+                        break;
+                      case "float":
+                        if (isNaN(parseFloat(postData.params[idx]))) {
+                          flagData = 'invalid float type'
+                          flagged = true;
+                        }
+                        break;
+                      case "bool":
+                        if (typeof postData.params[idx] !== "boolean") {
+                          flagData = 'invalid bool type'
+                          flagged = true;
+                        }
+                        break;
+                      case "str":
+                        if (typeof postData.params[idx] !== "string") {
+                          flagData = 'invalid str type'
+                          flagged = true;
+                        }
+                        break;
+                    }
+		  }
                 }
 
+			
                 if (flagged) { 
                   response.write(
                     JSON.stringify({ error: flagData })
@@ -123,7 +127,6 @@ http
 		    console.log(err);
                     response.write(JSON.stringify({ error: err }));
                   } else {
-		    console.log(data);
                     response.write(JSON.stringify(data));
                   }
 
@@ -138,7 +141,6 @@ http
 	            console.log(err)
                     response.write(JSON.stringify({ error: err }));
                   } else {
-		    console.log(data);
                     response.write(JSON.stringify(data));
                   }
                   response.end();
