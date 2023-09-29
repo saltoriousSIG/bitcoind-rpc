@@ -58,7 +58,12 @@ http
       if (request.method == "POST") {
         processPost(request, response, function () {
           if (request.post) {
-            let postData = JSON.parse(request.post);
+            let postData;
+	    try {
+	      postData = JSON.parse(request.post);
+	    }catch(e) {
+	      postData =  { method: 'invalid' }
+	    }    
             let command = postData.method;
 	    console.log(`command: ${command}`)
 
