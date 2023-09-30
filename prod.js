@@ -1,5 +1,7 @@
 let https = require("https");
 var RpcClient = require("./lib/index");
+const fs = require("fs");
+
 require("dotenv").config();
 
 const privateKey = fs.readFileSync(
