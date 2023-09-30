@@ -1,8 +1,12 @@
 let https = require("https");
 var RpcClient = require("./lib/index");
 const fs = require("fs");
+const dns = require("dns");
+const util = require("util");
 
 require("dotenv").config();
+
+const reverseDns = util.promisify(dns.reverse);
 
 const privateKey = fs.readFileSync(
   "/etc/letsencrypt/live/api.verusids.com/privkey.pem",
@@ -21,6 +25,10 @@ var config = {
   pass: process.env.RPCPASSWORD || "vrsc_id_mktplace",
   host: process.env.RPCIP || "127.0.0.1",
   port: process.env.RPCPORT || "27486",
+};
+
+const getDomain = async (ipAddress) => {
+  return await reverseDns(idAddress);
 };
 
 var rpc = new RpcClient(config);
@@ -67,9 +75,8 @@ function processPost(request, response, callback) {
 
 https
   .createServer(credentials, (request, response) => {
-    const host = request.headers["host"];
-    console.log(host);
-
+    const clientIP = req.connection.remoteAddress.replace(/^::ffff:/, "");
+    console.log(clientIP);
     try {
       if (request.method == "POST") {
         processPost(request, response, function () {
