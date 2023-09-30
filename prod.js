@@ -28,7 +28,7 @@ var config = {
 };
 
 const getDomain = async (ipAddress) => {
-  return await reverseDns(idAddress);
+  return await reverseDns(ipAddress);
 };
 
 var rpc = new RpcClient(config);
