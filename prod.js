@@ -1,6 +1,17 @@
-let http = require("http");
+let https = require("https");
 var RpcClient = require("./lib/index");
 require("dotenv").config();
+
+const privateKey = fs.readFileSync(
+  "/etc/letsencrypt/live/yoursubdomain.yourdomain.com/privkey.pem",
+  "utf8"
+);
+const certificate = fs.readFileSync(
+  "/etc/letsencrypt/live/yoursubdomain.yourdomain.com/fullchain.pem",
+  "utf8"
+);
+
+const credentials = { key: privateKey, cert: certificate };
 
 var config = {
   protocol: "http",
@@ -52,20 +63,20 @@ function processPost(request, response, callback) {
   }
 }
 
-http
-  .createServer((request, response) => {
+https
+  .createServer(credentials, (request, response) => {
     try {
       if (request.method == "POST") {
         processPost(request, response, function () {
           if (request.post) {
             let postData;
-	    try {
-	      postData = JSON.parse(request.post);
-	    }catch(e) {
-	      postData =  { method: 'invalid' }
-	    }    
+            try {
+              postData = JSON.parse(request.post);
+            } catch (e) {
+              postData = { method: "invalid" };
+            }
             let command = postData.method;
-	    console.log(`command: ${command}`)
+            console.log(`command: ${command}`);
 
             if (command in lowerCaseMethods) {
               if (postData.params.length > 0) {
@@ -74,51 +85,47 @@ http
                 let types = typeString.split(" ");
 
                 let flagged = false;
-                let flagData = ''
+                let flagData = "";
 
-		      
                 for ([idx, type] of types.entries()) {
-		  if (postData.params[idx] !== null) { 
+                  if (postData.params[idx] !== null) {
                     switch (type) {
                       case "obj":
                         if (postData.params[idx][0] !== "{") {
-                          flagData = 'invalid obj type'
+                          flagData = "invalid obj type";
                           flagged = true;
                         }
                         break;
                       case "int":
                         if (isNaN(parseInt(postData.params[idx]))) {
-                          flagData ='invalid int type'
+                          flagData = "invalid int type";
                           flagged = true;
                         }
                         break;
                       case "float":
                         if (isNaN(parseFloat(postData.params[idx]))) {
-                          flagData = 'invalid float type'
+                          flagData = "invalid float type";
                           flagged = true;
                         }
                         break;
                       case "bool":
                         if (typeof postData.params[idx] !== "boolean") {
-                          flagData = 'invalid bool type'
+                          flagData = "invalid bool type";
                           flagged = true;
                         }
                         break;
                       case "str":
                         if (typeof postData.params[idx] !== "string") {
-                          flagData = 'invalid str type'
+                          flagData = "invalid str type";
                           flagged = true;
                         }
                         break;
                     }
-		  }
+                  }
                 }
 
-			
-                if (flagged) { 
-                  response.write(
-                    JSON.stringify({ error: flagData })
-                  );
+                if (flagged) {
+                  response.write(JSON.stringify({ error: flagData }));
                   response.end();
                   response.writeHead(200, "OK", {
                     "Content-Type": "application/json",
@@ -127,9 +134,8 @@ http
                 }
 
                 rpc[command](...postData.params, function (err, data) {
-			
                   if (err) {
-		    console.log(err);
+                    console.log(err);
                     response.write(JSON.stringify({ error: err }));
                   } else {
                     response.write(JSON.stringify(data));
@@ -143,7 +149,7 @@ http
               } else {
                 rpc[command](function (err, data) {
                   if (err) {
-	            console.log(err)
+                    console.log(err);
                     response.write(JSON.stringify({ error: err }));
                   } else {
                     response.write(JSON.stringify(data));
@@ -171,8 +177,8 @@ http
       console.log(err.message);
     }
   })
-  .listen(process.env.NODEPORT || 8000,( ) => {
-     console.log(`server is running on port ${process.env.port || 8000}`);
+  .listen(process.env.NODEPORT || 8000, () => {
+    console.log(`server is running on port ${process.env.port || 8000}`);
   });
 
 setupLowerCase();
