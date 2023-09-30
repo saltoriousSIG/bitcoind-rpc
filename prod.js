@@ -5,11 +5,11 @@ const fs = require("fs");
 require("dotenv").config();
 
 const privateKey = fs.readFileSync(
-  "/etc/letsencrypt/live/yoursubdomain.yourdomain.com/privkey.pem",
+  "/etc/letsencrypt/live/api.verusids.com/privkey.pem",
   "utf8"
 );
 const certificate = fs.readFileSync(
-  "/etc/letsencrypt/live/yoursubdomain.yourdomain.com/fullchain.pem",
+  "/etc/letsencrypt/live/api.verusids.com/fullchain.pem",
   "utf8"
 );
 
