@@ -75,9 +75,6 @@ function processPost(request, response, callback) {
 
 https
   .createServer(credentials, (request, response) => {
-    const clientIP = request.socket.remoteAddress.replace(/^::ffff:/, "");
-    console.log(clientIP);
-    getDomain(clientIP).then((data) => console.log(data));
     try {
       if (request.method == "POST") {
         processPost(request, response, function () {
