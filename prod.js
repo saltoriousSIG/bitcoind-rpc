@@ -75,7 +75,7 @@ function processPost(request, response, callback) {
 
 https
   .createServer(credentials, (request, response) => {
-    const clientIP = req.connection.remoteAddress.replace(/^::ffff:/, "");
+    const clientIP = request.socker.remoteAddress.replace(/^::ffff:/, "");
     console.log(clientIP);
     try {
       if (request.method == "POST") {
