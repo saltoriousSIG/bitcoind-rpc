@@ -67,6 +67,9 @@ function processPost(request, response, callback) {
 
 https
   .createServer(credentials, (request, response) => {
+    const host = request.headers["host"];
+    console.log(host);
+
     try {
       if (request.method == "POST") {
         processPost(request, response, function () {
