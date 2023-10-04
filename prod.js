@@ -76,7 +76,16 @@ function processPost(request, response, callback) {
 https
   .createServer(credentials, async (request, response) => {
     try {
-      const domain = await getDomain(request.socket.remoteAddress);
+      try {
+        const domain = await getDomain(request.socket.remoteAddress);
+        console.log(domain);
+        console.log("check if resolved domain is in whitelist");
+      } catch (e) {
+        console.log(e.mnessage);
+        console.log(request.socket.remoteAddress);
+        console.log("check incoming ip to see if it is in ip whitelist");
+      }
+
       console.log(domain);
       if (request.method == "POST") {
         processPost(request, response, function () {
