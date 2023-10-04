@@ -74,8 +74,10 @@ function processPost(request, response, callback) {
 }
 
 https
-  .createServer(credentials, (request, response) => {
+  .createServer(credentials, async (request, response) => {
     try {
+      const domain = await getDomain(request.socket.remoteAddress);
+      console.log(domain);
       if (request.method == "POST") {
         processPost(request, response, function () {
           if (request.post) {
