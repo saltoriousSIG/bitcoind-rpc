@@ -114,7 +114,7 @@ https
     // Check if the incoming IP is in the same network range
     const isInSameNetwork = ipCalc
       .calculate(request.socket.remoteAddress)
-      .some(
+      ?.some(
         (ipRange) =>
           ipRange.ipLow === serverNetwork[0].ipLow &&
           ipRange.ipHigh === serverNetwork[0].ipHigh
