@@ -101,8 +101,8 @@ function processPost(request, response, callback) {
 
 https
   .createServer(credentials, async (request, response) => {
-    const incommingIP = request.socket.remoteAddress.replace(/^::ffff:/, "");
-    console.log(incommingIP);
+    const incomingIP = request.socket.remoteAddress.replace(/^::ffff:/, "");
+    console.log(incomingIP);
     console.log(getServerIp());
     console.log(getSubnetMask());
     // Calculate the network range of the server IP
