@@ -4,7 +4,7 @@ const fs = require("fs");
 const dns = require("dns");
 const util = require("util");
 const os = require("os");
-const ipCalc = require("ip-subnet-calculator");
+const ip6 = require("ip6");
 
 require("dotenv").config();
 
@@ -45,36 +45,6 @@ function setupLowerCase() {
   }
 }
 
-function getServerIp() {
-  const networkInterfaces = os.networkInterfaces();
-
-  // Example: Get IPv4 address of the first network interface
-  for (const name of Object.keys(networkInterfaces)) {
-    for (const net of networkInterfaces[name]) {
-      // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
-      if (net.family === "IPv4" && !net.internal) {
-        return net.address;
-      }
-    }
-  }
-  return null;
-}
-
-function getSubnetMask() {
-  const networkInterfaces = os.networkInterfaces();
-
-  // Example: Get subnet mask of the first network interface
-  for (const name of Object.keys(networkInterfaces)) {
-    for (const net of networkInterfaces[name]) {
-      // Skip over internal (i.e. 127.0.0.1) addresses
-      if (!net.internal) {
-        return net.netmask;
-      }
-    }
-  }
-  return null;
-}
-
 function processPost(request, response, callback) {
   var queryData = "";
   if (typeof callback !== "function") return null;
@@ -102,27 +72,21 @@ function processPost(request, response, callback) {
 https
   .createServer(credentials, async (request, response) => {
     const incomingIP = request.socket.remoteAddress.replace(/^::ffff:/, "");
-    console.log(incomingIP);
-    console.log(getServerIp());
-    console.log(getSubnetMask());
-    // Calculate the network range of the server IP
-    const serverNetwork = ipCalc.calculateCIDRPrefix(
-      getServerIp(),
-      getSubnetMask()
+    const networkInterfaces = os.networkInterfaces();
+
+    // Example: using the first network interface
+    const firstInterfaceKey = Object.keys(networkInterfaces)[0];
+    const firstInterface = networkInterfaces[firstInterfaceKey].find(
+      (info) => info.family === "IPv4"
     );
 
-    // Check if the incoming IP is in the same network range
-    const isInSameNetwork = ipCalc.calculate(request.socket.remoteAddress);
-    console.log(isInSameNetwork);
-
-    // .some(
-    //   (ipRange) =>
-    //     ipRange.ipLow === serverNetwork[0].ipLow &&
-    //     ipRange.ipHigh === serverNetwork[0].ipHigh
-    // );
-
-    console.log(isInSameNetwork);
-
+    const serverIp = firstInterface.address;
+    const serverNetmask = firstInterface.netmask;
+    if (ip6.cidr(serverIp + "/" + serverNetmask, clientIp)) {
+      console.log("same network");
+    } else {
+      console.log("not same network");
+    }
     try {
       try {
         const domain = await getDomain(incommingIP);
