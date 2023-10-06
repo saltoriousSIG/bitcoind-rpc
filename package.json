@@ -34,6 +34,7 @@
   },
   "license": "MIT",
   "main": "lib/index.js",
+  "type": "module",
   "scripts": {
     "test": "node_modules/.bin/mocha test -R spec",
     "coverage": "node_modules/.bin/istanbul cover node_modules/.bin/_mocha -- --recursive"
