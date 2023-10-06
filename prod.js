@@ -5,7 +5,7 @@ import dns from "dns";
 import util from "util";
 import os from "os";
 
-const RpcClient = require("./lib/index.cjs");
+const RpcClient = require("./lib/index.mjs");
 require("dotenv").config();
 
 const reverseDns = util.promisify(dns.reverse);
