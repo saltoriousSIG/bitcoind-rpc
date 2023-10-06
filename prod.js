@@ -104,6 +104,22 @@ https
     console.log(incommingIP);
     console.log(getServerIp());
     console.log(getSubnetMask());
+    // Calculate the network range of the server IP
+    const serverNetwork = ipCalc.calculateCIDRPrefix(
+      getServerIp(),
+      getSubnetMask()
+    );
+
+    // Check if the incoming IP is in the same network range
+    const isInSameNetwork = ipCalc
+      .calculate(incomingIp)
+      .some(
+        (ipRange) =>
+          ipRange.ipLow === serverNetwork[0].ipLow &&
+          ipRange.ipHigh === serverNetwork[0].ipHigh
+      );
+
+    console.log(isInSameNetwork);
 
     try {
       try {
