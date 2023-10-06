@@ -4,6 +4,7 @@ const fs = require("fs");
 const dns = require("dns");
 const util = require("util");
 const os = require("os");
+const ipCalc = require("ip-subnet-calculator");
 
 require("dotenv").config();
 
