@@ -8,23 +8,17 @@ require("dotenv").config();
 
 const reverseDns = util.promisify(dns.reverse);
 
-const privateKey = fs.readFileSync(
-  "/etc/letsencrypt/live/api.verusids.com/privkey.pem",
-  "utf8"
-);
-const certificate = fs.readFileSync(
-  "/etc/letsencrypt/live/api.verusids.com/fullchain.pem",
-  "utf8"
-);
+const privateKey = fs.readFileSync(process.env.PRIVATEKEY_LOCATION, "utf8");
+const certificate = fs.readFileSync(process.env.FULLCHAIN_LOCATION, "utf8");
 
 const credentials = { key: privateKey, cert: certificate };
 
 var config = {
   protocol: "http",
-  user: process.env.RPCUSER || "rootuser",
-  pass: process.env.RPCPASSWORD || "vrsc_id_mktplace",
-  host: process.env.RPCIP || "127.0.0.1",
-  port: process.env.RPCPORT || "27486",
+  user: process.env.RPCUSER,
+  pass: process.env.RPCPASSWORD,
+  host: process.env.RPCIP,
+  port: process.env.RPCPORT,
 };
 
 const getDomain = async (ipAddress) => {
@@ -75,15 +69,18 @@ function processPost(request, response, callback) {
 
 https
   .createServer(credentials, async (request, response) => {
+    const incommingIP = request.socket.remoteAddress.replace(/^::ffff:/, "");
+
     try {
       try {
-        const domain = await getDomain(request.socket.remoteAddress);
-        console.log(domain);
-        console.log("check if resolved domain is in whitelist");
+        const domain = await getDomain(incommingIP);
+        if (incommingIP === "192.168.1.1" || domain[0]) {
+          console.log("accept request");
+        } else {
+          console.log("return a 404 error and return from this function");
+        }
       } catch (e) {
-        console.log(e.mnessage);
-        console.log(request.socket.remoteAddress);
-        console.log("check incoming ip to see if it is in ip whitelist");
+        console.log("reverse dns failed");
       }
 
       console.log(domain);
