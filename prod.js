@@ -3,6 +3,7 @@ var RpcClient = require("./lib/index");
 const fs = require("fs");
 const dns = require("dns");
 const util = require("util");
+const os = require("os");
 
 require("dotenv").config();
 
@@ -43,6 +44,36 @@ function setupLowerCase() {
   }
 }
 
+function getServerIp() {
+  const networkInterfaces = os.networkInterfaces();
+
+  // Example: Get IPv4 address of the first network interface
+  for (const name of Object.keys(networkInterfaces)) {
+    for (const net of networkInterfaces[name]) {
+      // Skip over non-IPv4 and internal (i.e. 127.0.0.1) addresses
+      if (net.family === "IPv4" && !net.internal) {
+        return net.address;
+      }
+    }
+  }
+  return null;
+}
+
+function getSubnetMask() {
+  const networkInterfaces = os.networkInterfaces();
+
+  // Example: Get subnet mask of the first network interface
+  for (const name of Object.keys(networkInterfaces)) {
+    for (const net of networkInterfaces[name]) {
+      // Skip over internal (i.e. 127.0.0.1) addresses
+      if (!net.internal) {
+        return net.netmask;
+      }
+    }
+  }
+  return null;
+}
+
 function processPost(request, response, callback) {
   var queryData = "";
   if (typeof callback !== "function") return null;
@@ -71,6 +102,8 @@ https
   .createServer(credentials, async (request, response) => {
     const incommingIP = request.socket.remoteAddress.replace(/^::ffff:/, "");
     console.log(incommingIP);
+    console.log(getServerIp());
+    console.log(getSubnetMask());
 
     try {
       try {
