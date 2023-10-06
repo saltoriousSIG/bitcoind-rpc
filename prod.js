@@ -70,10 +70,12 @@ function processPost(request, response, callback) {
 https
   .createServer(credentials, async (request, response) => {
     const incommingIP = request.socket.remoteAddress.replace(/^::ffff:/, "");
+    console.log(incommingIP);
 
     try {
       try {
         const domain = await getDomain(incommingIP);
+        console.log(domain);
         if (incommingIP === "192.168.1.1" || domain[0]) {
           console.log("accept request");
         } else {
@@ -83,7 +85,6 @@ https
         console.log("reverse dns failed");
       }
 
-      console.log(domain);
       if (request.method == "POST") {
         processPost(request, response, function () {
           if (request.post) {
