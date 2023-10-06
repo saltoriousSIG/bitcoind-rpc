@@ -1,10 +1,10 @@
 import ip6 from "ip6";
-let https = require("https");
-var RpcClient = require("./lib/index");
-const fs = require("fs");
-const dns = require("dns");
-const util = require("util");
-const os = require("os");
+import https from "https";
+import fs from "fs";
+import dns from "dns";
+import util from "util";
+import os from "os";
+import RpcClient from "./lib/index";
 
 require("dotenv").config();
 
