@@ -78,7 +78,7 @@ http
                 let flagged = false;
                 let flagData = "";
 
-                for ([idx, type] of types.entries()) {
+                for (let [idx, type] of types.entries()) {
                   if (postData.params[idx] !== null) {
                     switch (type) {
                       case "obj":
