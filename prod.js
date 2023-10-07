@@ -1,19 +1,8 @@
-import ip6 from "ip6";
-import https from "https";
-import fs from "fs";
-import dns from "dns";
-import util from "util";
-import os from "os";
+import http from "http";
 import RpcClient from "./lib/index.mjs";
 import dotenv from "dotenv";
 
 dotenv.config();
-const reverseDns = util.promisify(dns.reverse);
-
-const privateKey = fs.readFileSync(process.env.PRIVATEKEY_LOCATION, "utf8");
-const certificate = fs.readFileSync(process.env.FULLCHAIN_LOCATION, "utf8");
-
-const credentials = { key: privateKey, cert: certificate };
 
 var config = {
   protocol: "http",
@@ -21,10 +10,6 @@ var config = {
   pass: process.env.RPCPASSWORD,
   host: process.env.RPCIP,
   port: process.env.RPCPORT,
-};
-
-const getDomain = async (ipAddress) => {
-  return await reverseDns(ipAddress);
 };
 
 var rpc = new RpcClient(config);
@@ -69,37 +54,9 @@ function processPost(request, response, callback) {
   }
 }
 
-https
+http
   .createServer(credentials, async (request, response) => {
-    const incomingIP = request.socket.remoteAddress.replace(/^::ffff:/, "");
-    const networkInterfaces = os.networkInterfaces();
-
-    // Example: using the first network interface
-    const firstInterfaceKey = Object.keys(networkInterfaces)[0];
-    const firstInterface = networkInterfaces[firstInterfaceKey].find(
-      (info) => info.family === "IPv4"
-    );
-
-    const serverIp = firstInterface.address;
-    const serverNetmask = firstInterface.netmask;
-    if (ip6.cidr(serverIp + "/" + serverNetmask, clientIp)) {
-      console.log("same network");
-    } else {
-      console.log("not same network");
-    }
     try {
-      try {
-        const domain = await getDomain(incommingIP);
-        console.log(domain);
-        if (incommingIP === "192.168.1.1" || domain[0]) {
-          console.log("accept request");
-        } else {
-          console.log("return a 404 error and return from this function");
-        }
-      } catch (e) {
-        console.log("reverse dns failed");
-      }
-
       if (request.method == "POST") {
         processPost(request, response, function () {
           if (request.post) {
