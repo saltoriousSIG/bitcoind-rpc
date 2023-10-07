@@ -5,9 +5,9 @@ import dns from "dns";
 import util from "util";
 import os from "os";
 import RpcClient from "./lib/index.mjs";
+import dotenv from "dotenv";
 
-require("dotenv").config();
-
+dotenv.config();
 const reverseDns = util.promisify(dns.reverse);
 
 const privateKey = fs.readFileSync(process.env.PRIVATEKEY_LOCATION, "utf8");
