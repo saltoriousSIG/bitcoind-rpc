@@ -4,8 +4,8 @@ import fs from "fs";
 import dns from "dns";
 import util from "util";
 import os from "os";
+import RpcClient from "./lib/index.mjs";
 
-const RpcClient = require("./lib/index.mjs");
 require("dotenv").config();
 
 const reverseDns = util.promisify(dns.reverse);
